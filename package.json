@@ -25,6 +25,7 @@
     "parcel": "^2.0.0-nightly.524"
   },
   "dependencies": {
-    "hover-effect": "^1.1.0"
+    "hover-effect": "^1.1.0",
+    "p5": "^1.2.0"
   }
 }
