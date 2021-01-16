@@ -1,0 +1,30 @@
+{
+  "name": "parcel-start-kit",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.html",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "parcel serve src/index.html",
+    "build:product": "parcel build src/index.html"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sungkuk5420/parcel-start-kit.git"
+  },
+  "alias": {
+    "jsx": "./js"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/sungkuk5420/parcel-start-kit/issues"
+  },
+  "homepage": "https://github.com/sungkuk5420/parcel-start-kit#readme",
+  "devDependencies": {
+    "parcel": "^2.0.0-nightly.524"
+  },
+  "dependencies": {
+    "hover-effect": "^1.1.0"
+  }
+}
