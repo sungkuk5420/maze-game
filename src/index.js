@@ -117,6 +117,74 @@ class Player {
   }
 }
 
+class Level {
+  constructor() {
+    this.walls = [];
+    this.tilemap = '';
+    this.tileSize = 35;
+    this.mapWidth = 0;
+    this.mapHeight = 0;
+  }
+  tileAt(x, y) {
+    return this.tilemap[this.mapWidth*y + x];
+  }
+  addWorldEdges() {
+    let s = this.tileSize;
+    let w = this.mapWidth;
+    let h = this.mapHeight;
+    this.walls.push(new Ray2(new Vec2(0,0), new Vec2(s*w, 0)));
+    this.walls.push(new Ray2(new Vec2(0,0), new Vec2(0, s*h)));
+    this.walls.push(new Ray2(new Vec2(s*w,s*h), new Vec2(-s*w, 0)));
+    this.walls.push(new Ray2(new Vec2(s*w,s*h), new Vec2(0, -s*h)));
+  }
+  /**
+   * @param {string} tilemap 
+   * @param {number} width 
+   * @param {number} height 
+   * @param {number} size 
+   */
+  addTilemap({tilemap, width, height, size}) {
+    this.tilemap = tilemap;
+    this.mapWidth = width;
+    this.mapHeight = height;
+    this.tileSize = size;
+    let s = size;
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++) {
+        let tile = this.tileAt(x, y);
+        if (tile === 'O' || tile === 'X') {
+          this.walls.push(new Ray2(new Vec2(s * x, s * y), new Vec2(s, 0)));
+          this.walls.push(new Ray2(new Vec2(s * x, s * y), new Vec2(0, s)));
+          if (this.tileAt(x, y + 1) === '.') {
+            this.walls.push(new Ray2(new Vec2(s * x, s * y + s), new Vec2(s, 0)));
+          }
+          if (this.tileAt(x + 1, y) === '.') {
+            this.walls.push(new Ray2(new Vec2(s * x + s, s * y), new Vec2(0, s)));
+          }
+          if (tile === 'X') {
+            this.walls.push(new Ray2(new Vec2(s * x, s * y), new Vec2(s, s)));
+            this.walls.push(new Ray2(new Vec2(s * x + s, s * y), new Vec2(-s, s)));
+          }
+        }
+      }
+    }
+  }
+}
+
+class Game {
+  constructor() {
+    this.player = new Player();
+    this.level = new Level();
+  }
+  reset(p) {
+    this.player.pos = new Vec2(118, 201);
+    this.player.angle = -p.PI/2;
+  }
+}
+
+// グローバル変数 Global variables
+let game;
+
 /** @type {Player} */
 let player;
 
@@ -124,32 +192,52 @@ let player;
 const s = (p) => {
   p.setup = () => {
    //화면의 비율은 일반적인 스마트폰 사이즈나 PC랑 같은 16:9비율로 함.
-    p.createCanvas(640,360)
-    
-    player = new Player();
-    player.pos = new Vec2(100, 200);
-    player.angle = -p.PI / 2;
+   p.createCanvas(640, 480);
+  
+   game = new Game();
+   game.reset(p);
+ 
+   game.level.addTilemap({
+    tilemap:(
+       '..........' +
+       '..........' +
+       '....OOO...' +
+       '....O.....' +
+       '..........' +
+       '..........' +
+       '..........' +
+       '........O.' +
+       '..OO...OO.' +
+       '..OO...O..'
+     ),
+     width:10,
+     height:10,
+     size:36
+    });
+   game.level.addWorldEdges();
   };
 
   p.draw = () => {
+    p.noSmooth();
     // 배경이 밝으면 노란색이나 녹색의 표현이 어려우므로 어둡게함.
     // 배경
     p.background(60);
 
     // 벽을 그린다 
-    p.strokeWeight(3);
-    p.stroke('white');
-
-    // 벽의 정의。
-    // ※이렇게쓰면 push함수를 사용하지않고도 배열에 넣을 수 있다.
-    let walls = [
-      Ray2.with2p(new Vec2(50, 50), new Vec2(100, 300)),
-      Ray2.with2p(new Vec2(100, 300), new Vec2(250, 200)),
-      Ray2.with2p(new Vec2(250, 200), new Vec2(50, 50)),
-    ];
+    p.strokeWeight(4);
+    p.stroke(224);
+    let walls = game.level.walls;
     for(let wall of walls) {
       p.line(wall.begin.x, wall.begin.y, wall.end.x, wall.end.y);
     }
+
+
+
+    // プレイヤーを描画. Draw the player
+    p.stroke(224, 224, 0);
+    p.strokeWeight(24);
+    player = game.player;
+    p.point(player.pos.x, player.pos.y);
 
     // プレイヤーを描画
     p.stroke('yellow');
