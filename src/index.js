@@ -169,44 +169,60 @@ const s = (p) => {
       player.pos.y -= new Vec2(p.cos(player.angle), p.sin(player.angle)).mult(360).y/180
     }
 
-    // プレイヤーの視界を描画
-    {
-      let fov = p.PI / 2;
-      let centerAngle = player.angle;
-      let leftAngle = centerAngle - fov/2;
-      let rightAngle = centerAngle + fov/2;
-      let beamTotal = 30;
-      let beamIndex = -1;
-      for(let angle=leftAngle; angle<rightAngle+0.01; angle+=fov/beamTotal) {
-        beamIndex++;
-        let beam = new Ray2(
-          player.pos.copy(),
-          new Vec2(p.cos(angle), p.sin(angle)).mult(100)
-        );
-        p.stroke('yellow');
-        p.strokeWeight(2);
-        p.line(beam.begin.x, beam.begin.y, beam.end.x, beam.end.y);
+   // 3Dビューを描画. Draw the 3d view.
+  {
+    let viewRect = new Ray2(new Vec2(380, 40), new Vec2(320, 240));
 
-        for(let wall of walls) {
-          let hitPos = beam.intersection(wall);
-          if (hitPos === null) continue;
-          p.stroke('yellow');
-          p.strokeWeight(10);
-          p.point(hitPos.x, hitPos.y);
+    let fov = p.PI / 2;
+    let centerAngle = player.angle;
+    let leftAngle = centerAngle - fov/2;
+    let rightAngle = centerAngle + fov/2;
+    let beamTotal = 32;
+    let beamIndex = -1;
+    for(let angle=leftAngle; angle<rightAngle-0.01; angle+=fov/beamTotal) {
+      beamIndex++;
+      let beam = new Ray2(
+        player.pos.copy(),
+        new Vec2(p.cos(angle), p.sin(angle)).mult(120)
+      );
+      p.stroke('yellow');
+      p.strokeWeight(1);
+      p.line(beam.begin.x, beam.begin.y, beam.end.x, beam.end.y);
 
-          // 3Dビューに描画
-          let viewRoot = new Vec2(320, 180);
-          let wallDist = hitPos.sub(beam.begin).mag();
-          let wallPerpDist = wallDist;
-          let lineHeight = 2800 / wallPerpDist;
-          let lineBegin = viewRoot.add(new Vec2(300/beamTotal*beamIndex, -lineHeight/2));
-          let lineEnd = lineBegin.add(new Vec2(0, lineHeight));
-          p.stroke('white');
-          p.strokeWeight(4);
-          p.line(lineBegin.x, lineBegin.y, lineEnd.x, lineEnd.y);
-        }
-      }
+      // 光線が2枚以上の壁にあたっていたら、一番近いものを採用する。
+      // Adapt the nearest beam.
+      let allHitBeamWays = walls.map(wall => beam.intersection(wall))
+        .filter(pos => pos !== null)
+        .map(pos => pos.sub(beam.begin));
+      if (allHitBeamWays.length === 0) continue;
+      let hitBeam = allHitBeamWays.reduce((a, b) => a.mag() < b.mag() ? a : b);
+
+      p.stroke('yellow');
+      p.strokeWeight(8);
+      let hitPos = hitBeam.add(beam.begin);
+      p.point(hitPos.x, hitPos.y);
+
+      let wallDist = hitBeam.mag();
+      let wallPerpDist = wallDist * p.cos(angle - centerAngle);
+      let lineHeight = p.constrain(2800 / wallPerpDist, 0, viewRect.way.y);
+      let lineBegin = viewRect.begin.add(
+        new Vec2(
+          viewRect.way.x/beamTotal*beamIndex,
+          viewRect.way.y/2-lineHeight/2
+        )
+      );
+      let lightness = 224;
+      p.strokeWeight(0);
+      p.fill(lightness);
+      p.rect(lineBegin.x, lineBegin.y, 7, lineHeight);
     }
+
+    // 3Dビューの枠を描画. Draw border lines of the 3d view.
+    p.noFill();
+    p.stroke('cyan');
+    p.strokeWeight(4);
+    p.rect(viewRect.pos.x, viewRect.pos.y, viewRect.way.x, viewRect.way.y);
+  }
   };
 
   p.touchMoved  = (event) =>{
