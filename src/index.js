@@ -188,31 +188,68 @@ let game;
 /** @type {Player} */
 let player;
 
+const windowWidth  = document.body.clientWidth-40;
+const windowHeight  = windowWidth/16*9;
+
+const MAP_WIDTH = 40;
+const MAP_HEIGHT = 40;
+const MAP_SIZE = document.body.clientWidth/120;
 
 const s = (p) => {
   p.setup = () => {
    //화면의 비율은 일반적인 스마트폰 사이즈나 PC랑 같은 16:9비율로 함.
-   p.createCanvas(640, 480);
+
+   
+   p.createCanvas(windowWidth, windowHeight);
   
    game = new Game();
    game.reset(p);
  
    game.level.addTilemap({
     tilemap:(
-       '..........' +
-       '..........' +
-       '....OOO...' +
-       '....O.....' +
-       '..........' +
-       '..........' +
-       '..........' +
-       '........O.' +
-       '..OO...OO.' +
-       '..OO...O..'
+      "..O.............O...OO....O...........O."+
+      ".OO....O......O.....O..................."+
+      ".................O.OO.....O............."+
+      "...O...................OO........O..O..."+
+      "...OO.............O....................."+
+      ".O....O.....O..........................."+
+      "....O............O.....O..O............."+
+      "......O......O..O..............O..O....O"+
+      "..O...O......O........O............O..OO"+
+      "....O...O...OO..................O...O..."+
+      "...........O.........O....O.O.........O."+
+      ".............................O...O....O."+
+      "O........OO.O..........................O"+
+      "...O.....O.......O..................O..."+
+      "..........O........O.O......O........O.."+
+      "....OO....O.O..............O............"+
+      "..O.......................OO............"+
+      "O..O...................................O"+
+      "...O.OO.....O.......................O..."+
+      "...O...................................."+
+      "....O...........................O....O.."+
+      "...................O.O..O.......O......."+
+      "...........................O...........O"+
+      ".O.....O...............O.O.............."+
+      ".................O..O..................."+
+      "..........O............................."+
+      "OO............O........................."+
+      "...O......O....O................O......."+
+      "O...........O...............O..........."+
+      "..........O.........O..OO.......O......."+
+      "................................OO....OO"+
+      "......O.........O.......O.............O."+
+      ".....O......O........O...........O......"+
+      ".......O................O......O.O......"+
+      ".................O........OO..O.O.....O."+
+      "...O...................................."+
+      "..............O.O......................."+
+      "...O..........O...O....................."+
+      "......................OO.......O...O...."
      ),
-     width:10,
-     height:10,
-     size:36
+     width:MAP_WIDTH,
+     height:MAP_HEIGHT,
+     size:MAP_SIZE
     });
    game.level.addWorldEdges();
   };
@@ -249,17 +286,21 @@ const s = (p) => {
     if (p.keyIsDown(p.LEFT_ARROW)) player.angle -= p.PI / 60;
     if (p.keyIsDown(p.RIGHT_ARROW)) player.angle += p.PI / 60;
     if (p.keyIsDown(p.UP_ARROW)) {
-      player.pos.x += new Vec2(p.cos(player.angle), p.sin(player.angle)).mult(360).x/180
-      player.pos.y += new Vec2(p.cos(player.angle), p.sin(player.angle)).mult(360).y/180
+      player.pos.x += new Vec2(p.cos(player.angle), p.sin(player.angle)).mult(360).x/360
+      player.pos.y += new Vec2(p.cos(player.angle), p.sin(player.angle)).mult(360).y/360
     };
     if (p.keyIsDown(p.DOWN_ARROW)){
-      player.pos.x -= new Vec2(p.cos(player.angle), p.sin(player.angle)).mult(360).x/180
-      player.pos.y -= new Vec2(p.cos(player.angle), p.sin(player.angle)).mult(360).y/180
+      player.pos.x -= new Vec2(p.cos(player.angle), p.sin(player.angle)).mult(360).x/360
+      player.pos.y -= new Vec2(p.cos(player.angle), p.sin(player.angle)).mult(360).y/360
     }
 
    // 3Dビューを描画. Draw the 3d view.
   {
-    let viewRect = new Ray2(new Vec2(380, 40), new Vec2(320, 240));
+//     MAP_WIDTH
+// MAP_HEIGHT
+// MAP_SIZE
+console.log(MAP_WIDTH*MAP_SIZE)
+    let viewRect = new Ray2(new Vec2(MAP_WIDTH*MAP_SIZE+20, 0), new Vec2(windowWidth-(MAP_WIDTH*MAP_SIZE+20),MAP_HEIGHT*MAP_SIZE));
 
     let fov = p.PI / 2;
     let centerAngle = player.angle;
