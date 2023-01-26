@@ -3,7 +3,7 @@ p5.js 를 사용해 미로게임을 만들어보았습니다.
 
 p5.jsを使って迷路ゲームを作ってみました。
 ## Demo / 데모 / デモサイト
-[Link Open](https://web-game-3d.herokuapp.com/) 
+[Link Open](https://maze-game-kim.netlify.app/) 
   
 
 ## Getting Started / 어떻게 시작하나요? / 始め方
